@@ -1,5 +1,5 @@
 // MockAPI Base Endpoint
-const API_BASE = "https://6aba8d5c5b549d818d627f0d.mockapi.io/api/v1";
+const API_BASE = "https://6aba8d5c5b549d818d627f0d.mockapi.io";
 
 // Default Mock Job Listings (Offline Fallback)
 const defaultFallbackJobs = [
