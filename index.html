@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalentTrack 3.0 - Cloud CRUD Job Management Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Talent<span>Track 3.0</span></div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#" id="jobs-nav-btn" class="active">Jobs</a></li>
+                <li><a href="#" id="applications-nav-btn">My Applications (<span id="user-app-count">0</span>)</a></li>
+            </ul>
+        </nav>
+        <div class="nav-actions">
+            <button id="theme-toggle" class="btn-theme" title="Toggle Dark/Light Mode">🌙</button>
+            <button id="login-btn" class="btn-secondary">Login</button>
+            <button id="profile-btn" class="btn-profile hidden"><img id="nav-avatar" src="https://via.placeholder.com/30?text=U" alt="Profile"> <span id="nav-username">Hi, User</span></button>
+            <button id="logout-nav-btn" class="btn-danger hidden">Logout</button>
+            <button id="post-job-btn" class="btn-primary">+ Post a Job</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero & Live Stats Section -->
+        <section class="hero">
+            <h1>Find Your Next <span class="highlight">Dream Career</span></h1>
+            <p>Discover top tech, design, and management opportunities powered by REST API Cloud Persistence.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="stat-total">0</h3>
+                    <p>Active Jobs</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="stat-applied">0</h3>
+                    <p>Applications Sent</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="stat-interviews">0</h3>
+                    <p>Interviews Scheduled</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search & Filter Controls -->
+        <section class="filter-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search by job title, skill, or company...">
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn active" data-category="all">All Jobs</button>
+                <button class="filter-btn" data-category="Full-Time">Full-Time</button>
+                <button class="filter-btn" data-category="Remote">Remote</button>
+                <button class="filter-btn" data-category="Part-Time">Part-Time</button>
+            </div>
+        </section>
+
+        <!-- Skeleton Loader Container -->
+        <div id="skeleton-loader" class="job-list">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+
+        <!-- Job Cards Container -->
+        <section id="job-container" class="job-list hidden"></section>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn close-modal">&times;</span>
+            <h2>User Login / Sign Up</h2>
+            <p class="modal-sub">Login to manage your application history and cloud submissions.</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-name">Full Name</label>
+                    <input type="text" id="login-name" required placeholder="e.g. Rahul Sharma">
+                </div>
+                <div class="form-group">
+                    <label for="login-mobile">Mobile No.</label>
+                    <input type="tel" id="login-mobile" pattern="[0-9]{10}" required placeholder="10-digit mobile number">
+                </div>
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" required placeholder="e.g. user@gmail.com">
+                </div>
+                <button type="submit" class="btn-primary full-width">Sign In / Continue</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Post Job Opportunity Modal (CRUD: Create Job) -->
+    <div id="post-job-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn close-modal">&times;</span>
+            <h2>Post a New Job Opportunity</h2>
+            <form id="post-job-form">
+                <div class="form-group">
+                    <label for="job-title">Post / Job Title</label>
+                    <input type="text" id="job-title" required placeholder="e.g. Full Stack Developer">
+                </div>
+                <div class="form-group">
+                    <label for="job-company">Company Name</label>
+                    <input type="text" id="job-company" required placeholder="e.g. Tech Solutions">
+                </div>
+                <div class="form-group">
+                    <label for="job-location">City / Location</label>
+                    <input type="text" id="job-location" required placeholder="e.g. Ahmedabad">
+                </div>
+                <div class="form-group">
+                    <label for="job-type">Job Type</label>
+                    <select id="job-type">
+                        <option value="Full-Time">Full-Time</option>
+                        <option value="Remote">Remote</option>
+                        <option value="Part-Time">Part-Time</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="job-education">Required Education</label>
+                    <input type="text" id="job-education" required placeholder="e.g. B.Tech">
+                </div>
+                <div class="form-group">
+                    <label for="job-salary">Expected Salary</label>
+                    <input type="text" id="job-salary" required placeholder="e.g. ₹30,000 to ₹40,000">
+                </div>
+                <button type="submit" id="post-job-submit-btn" class="btn-primary full-width">Post Job to Cloud</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Apply Job Modal (CRUD: Create Application) -->
+    <div id="apply-modal" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <span class="close-btn close-modal">&times;</span>
+            <h2 id="view-job-title" class="job-detail-title">Frontend Developer</h2>
+            
+            <div class="job-meta-details">
+                <p><strong>Company:</strong> <span id="view-job-company">TechCorp</span></p>
+                <p><strong>Location:</strong> <span id="view-job-location">Ahmedabad</span></p>
+                <p><strong>Required Education:</strong> <span id="view-job-education">B.Tech Computer Engineering</span></p>
+                <p><strong>Expected Salary:</strong> <span id="view-job-salary">₹30,000 - ₹40,000 / month</span></p>
+            </div>
+
+            <form id="apply-form" style="margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label>Upload Resume (PDF / DOCX)</label>
+                    <div class="file-drop-area" id="drop-zone">
+                        <span class="file-msg">Drag & Drop or Click to Upload Resume</span>
+                        <input class="file-input" type="file" id="resume-input" accept=".pdf,.doc,.docx" required>
+                    </div>
+                    <div id="file-preview" class="file-preview hidden">
+                        <div class="file-info">
+                            <span id="file-name">filename.pdf</span>
+                            <span id="file-size">0 KB</span>
+                        </div>
+                        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+                    </div>
+                </div>
+                <button type="submit" id="submit-app-btn" class="btn-primary full-width" disabled>Apply Now</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Candidate Profile Modal (CRUD: Create/Update Profile) -->
+    <div id="profile-modal" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <span class="close-btn close-modal">&times;</span>
+            <h2>My TalentTrack Candidate Profile</h2>
+            <p class="modal-sub">Build your profile to automatically share details with employers.</p>
+            <form id="profile-form">
+                <div class="form-group">
+                    <label for="profile-pic">Add Profile Picture (Optional - JPG/JPEG)</label>
+                    <input type="file" id="profile-pic" accept="image/jpeg, image/jpg">
+                    <div id="pic-preview-container" class="pic-preview-container hidden">
+                        <img id="profile-pic-preview" src="" alt="Preview">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="prof-fullname">Full Name *</label>
+                    <input type="text" id="prof-fullname" required placeholder="Letters only (e.g. Shakti Zala)">
+                    <span class="error-msg" id="err-fullname"></span>
+                </div>
+                <div class="form-group">
+                    <label for="prof-address">Address *</label>
+                    <input type="text" id="prof-address" required placeholder="City / Residence address">
+                </div>
+                <div class="form-group">
+                    <label for="prof-edu">Education (Course Details) *</label>
+                    <input type="text" id="prof-edu" required placeholder="e.g. B.Tech Computer Engineering - GTU">
+                </div>
+                <div class="form-group">
+                    <label for="prof-mobile">Mobile No. *</label>
+                    <input type="tel" id="prof-mobile" required placeholder="10-digit mobile number">
+                    <span class="error-msg" id="err-mobile"></span>
+                </div>
+                <div class="form-group">
+                    <label for="prof-email">Email ID (Gmail Only) *</label>
+                    <input type="email" id="prof-email" required placeholder="e.g. candidate@gmail.com">
+                    <span class="error-msg" id="err-email"></span>
+                </div>
+                <div class="form-group">
+                    <label for="prof-exp">Past Experience (Optional)</label>
+                    <textarea id="prof-exp" rows="2" placeholder="e.g. 1 Year React Developer Internship..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary full-width">Submit Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile View Display Modal -->
+    <div id="view-profile-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn close-modal">&times;</span>
+            <div class="profile-card-display">
+                <img id="view-prof-pic" src="https://via.placeholder.com/100?text=User" alt="Profile Picture" class="profile-avatar">
+                <h2 id="view-prof-name">Candidate Name</h2>
+                <p id="view-prof-email" class="company-sub">user@gmail.com</p>
+                <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border-color);">
+                <div class="profile-info-grid">
+                    <p><strong>Mobile:</strong> <span id="view-prof-mobile">-</span></p>
+                    <p><strong>Address:</strong> <span id="view-prof-address">-</span></p>
+                    <p><strong>Education:</strong> <span id="view-prof-edu">-</span></p>
+                    <p><strong>Experience:</strong> <span id="view-prof-exp">None Specified</span></p>
+                </div>
+                <div class="profile-btn-group" style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button id="edit-profile-btn" class="btn-secondary" style="flex: 1;">Edit Details</button>
+                    <button id="logout-profile-btn" class="btn-danger" style="flex: 1;">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Applications List Modal (CRUD: Read & Delete via Withdraw) -->
+    <div id="applications-modal" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <span class="close-btn close-modal">&times;</span>
+            <h2>My Applied Positions</h2>
+            <p class="modal-sub">View and withdraw active applications in real time via MockAPI REST endpoints.</p>
+            <div id="my-apps-list" class="my-apps-list" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <!-- Live Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
